@@ -1,0 +1,41 @@
+---
+title: "Harmonizing the 3D-CAM"
+author: "Doug Tommet"
+date: '`r Sys.Date()`'
+format:
+  html:
+    toc: true
+    self-contained: true
+    theme: journal
+figures:
+  fig-cap-location: top 
+execute:
+  echo: false
+  warning: false
+  message: false
+keep-md: true
+---
+
+```{r}
+source(here::here("R", "001-Libraries_and_functions.R"))
+source(here::here("R", "005-folder_paths.R"))
+```
+
+
+```{r}
+# source(here::here("R", "010-read_data.R"))
+source(here::here("R", "020-transform_data.R"))
+source(here::here("R", "025-combine_data.R"))
+source(here::here("R", "051-harmonize_3D-CAM.R"))
+source(here::here("R", "060-Put_onto_3D-CAM_scale.R"))
+
+```
+
+
+{{< include _025-combine_data.qmd >}}
+
+{{< include _051-harmonize_3D-CAM.qmd >}}
+
+{{< include _060-Put_onto_3D-CAM_scale.qmd >}}
+
+

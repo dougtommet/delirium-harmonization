@@ -1,0 +1,274 @@
+---
+title: "Delirium Harmonization: 3D-CAM"
+author: "Doug Tommet"
+date: '`r Sys.Date()`'
+format:
+  html:
+    toc: true
+    self-contained: true
+    theme: journal
+figures:
+  fig-cap-location: top 
+execute:
+  echo: false
+  warning: false
+  message: false
+keep-md: true
+---
+
+```{r}
+source(here::here("R", "001-Libraries_and_functions.R"))
+source(here::here("R", "005-folder_paths.R"))
+```
+
+```{r}
+combined_df <- readRDS(file=fs::path(r_objects_folder, "025_combined_df.rds"))
+sages_del_assessment <- readRDS(file=fs::path(r_objects_folder, "020_sages_del_assessment.rds"))
+
+intuit_cog_df <- readxl::read_xlsx(fs::path(duke_data_folder, "MADCOPC_INTUIT_forNIDUS_04142022.xlsx"), sheet = "CognitiveData")
+
+intuit_cog_df <- intuit_cog_df %>%
+  filter(study=="I") %>%
+  filter(visit==0)
+
+sages_interview <- haven::read_dta(fs::path(sagesI_datafolder, "SAGES-Subject-Interview-Data-Analysis-File.dta"))
+sages_560 <- read_csv(fs::path(sagesI_datafolder, "N560.csv"))
+```
+
+# Comparison of MMSE scores.
+
+```{r}
+intuit_cog_df %>%
+  select(mmsetot) %>%
+  gtsummary::tbl_summary(
+    type = c(mmsetot) ~ "continuous2",
+    statistic = list(
+      gtsummary::all_continuous() ~ c(
+      "{N_nonmiss}",
+      "{mean} ({sd})",
+      "{median} ({p25}, {p75})",
+      "{min}, {max}"
+    ),
+      gtsummary::all_categorical() ~ "{n} / {N} ({p}%)"
+    )
+  )
+
+sages_interview %>%
+  filter(timefr==0) %>%
+  filter(studyid %in% (sages_560 %>% pull(studyid))) %>%
+  select(vdmmse) %>%
+  gtsummary::tbl_summary(
+    type = c(vdmmse) ~ "continuous2",
+    statistic = list(
+      gtsummary::all_continuous() ~ c(
+      "{N_nonmiss}",
+      "{mean} ({sd})",
+      "{median} ({p25}, {p75})",
+      "{min}, {max}"
+    ),
+      gtsummary::all_categorical() ~ "{n} / {N} ({p}%)"
+    )
+  )
+```
+
+# Item recoding in SAGES
+
+This section shows the recoding of the CAM items in SAGES to match the 3D-CAM item responses.
+
+## What is the year?
+
+Refusals and Don't knows count as errors.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q1_result, cf01)
+```
+
+## What is the day of week?
+
+Refusals and Don't knows count as errors.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q2_result, cf04)
+```
+
+## What type of place are you in?
+
+Refusals and Don't knows count as errors.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q3_result, cf06)
+```
+
+## Digit span: 3 backwards
+
+Refusals count as errors, Unables count as missing.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(q4_errors, db3)
+```
+
+## Digit span: 4 backwards
+
+Refusals count as errors, Unables count as missing.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(q5_errors, db4)
+```
+
+## Days of the week backwards
+
+Refusals and Don't knows count as errors.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(q6_errors, dow_total_correct)
+```
+
+## Months of the year backwards
+
+Refusals and Don't knows count as errors.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(q7_errors, moy_total_correct)
+```
+
+## Have you felt confused today?
+
+Refusals and Don't knows count as missing.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q8_result, dsi02)
+```
+
+## Did you think you weren't in the hospital?
+
+Refusals and Don't knows count as missing.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q9_result, dsi01)
+```
+
+## Did you see things that weren't really there?
+
+Refusals and Don't knows count as missing.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q10_result, dsi03)
+```
+
+## Patient sleepy, stuporouos or comatose?
+
+Lethargic, stupor, coma count as present.
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q11_result, cam03a)
+```
+
+## Patient hypervigilant?
+
+Vigilant counts as a Yes.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q12_result, cam03a)
+```
+
+## Disorganized speech?
+
+Mild, moderate, severe count as present.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q13_result, cam02a)
+```
+
+## Rambling conversation?
+
+Doesn't seem like there is a good match in SAGES.
+
+## Speech limited, sparse?
+
+Doesn't seem like there is a good match in SAGES.
+
+## Did patient have trouble keeping track during the interview?
+
+Mild, moderate, severe count as present.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q16_result, cam01a)
+```
+
+## Easily distracted?
+
+Doesn't seem like there is a good match in SAGES.
+
+## Fluctuating level of consciousness
+
+Uncertain counts as missing. Cam03a=="Alert" counts as No.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q18_result, cam03b)
+```
+
+## Fluctuating attention
+
+Uncertain counts as missing. Cam02a=="Not present" counts as No.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q19_result, cam01b)
+```
+
+## Fluctuating speech
+
+Uncertain counts as missing. Cam01a=="Not present" counts as No.
+
+```{r}
+sages_del_assessment %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_cross(dcam_q20_result, cam02b)
+
+
+```
+
+# Item comparison between studies
+
+```{r}
+combined_df %>%
+  select(study, dcam_q1_result, dcam_q2_result, dcam_q3_result,
+         q4_errors, q5_errors, q6_errors, q7_errors,
+         dcam_q8_result, dcam_q9_result, dcam_q10_result, dcam_q11_result, dcam_q12_result,
+         dcam_q13_result, dcam_q14_result, dcam_q15_result, dcam_q16_result, dcam_q17_result,
+         dcam_q18_result, dcam_q19_result, dcam_q20_result) %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_summary(by = study)
+
+```
+

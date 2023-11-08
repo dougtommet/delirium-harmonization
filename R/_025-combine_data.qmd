@@ -1,0 +1,32 @@
+
+
+# Data
+
+The data for this harmonization analysis come from the Intuit and SAGES studies.
+
+The SAGES study didn't have the proper 3D-CAM.  The CAM-S items in SAGES were transformed to approximate the 3D-CAM items.
+
+```{r}
+
+combined_df <- readRDS(file=fs::path(r_objects_folder, "025_combined_df.rds"))
+```
+
+## Item summaries
+
+@tbl-desc-items shows the percent each of the 20 items was endorsed by study.
+
+```{r}
+#| tbl-cap: Item summaries by study
+#| label: tbl-desc-items
+
+combined_df %>%
+  select(study, dcam_q1_result, dcam_q2_result, dcam_q3_result,
+         q4_errors, q5_errors, q6_errors, q7_errors,
+         dcam_q8_result, dcam_q9_result, dcam_q10_result, dcam_q11_result, dcam_q12_result,
+         dcam_q13_result, dcam_q14_result, dcam_q15_result, dcam_q16_result, dcam_q17_result,
+         dcam_q18_result, dcam_q19_result, dcam_q20_result) %>%
+  labelled::to_factor() %>%
+  gtsummary::tbl_summary(by = study)
+
+
+```

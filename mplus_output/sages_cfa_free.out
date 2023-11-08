@@ -1,0 +1,640 @@
+Mplus VERSION 8.9 (Mac)
+MUTHEN & MUTHEN
+05/12/2023   2:09 PM
+
+INPUT INSTRUCTIONS
+
+  DATA:
+  FILE = "sages_cfa_free.dat";
+
+  VARIABLE:
+  NAMES = id q1 q2 q3 q4 q5 q6 q7 q8 q9 q10 q11 q12 q13 q16 q18 q19 q20;
+   MISSING=.;
+   CATEGORICAL ARE all; idvariable = id;
+  ANALYSIS:
+  estimator = MLR;
+  MODEL:
+   f by  q1*
+                       q2
+                       q3
+                       q4
+                       q5
+                       q6
+                       q7
+                       q8
+                       q9
+                       q10
+                       q11
+                       q12
+                       q13
+                       q16
+                       q18
+                       q19
+                       q20;
+                 f @1;
+  OUTPUT:
+  standardized
+
+
+
+*** WARNING
+  Data set contains cases with missing on all variables.
+  These cases were not included in the analysis.
+  Number of cases with missing on all variables:  53
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                        2122
+
+Number of dependent variables                                   17
+Number of independent variables                                  0
+Number of continuous latent variables                            1
+
+Observed dependent variables
+
+  Binary and ordered categorical (ordinal)
+   Q1          Q2          Q3          Q4          Q5          Q6
+   Q7          Q8          Q9          Q10         Q11         Q12
+   Q13         Q16         Q18         Q19         Q20
+
+Continuous latent variables
+   F
+
+Variables with special functions
+
+  ID variable           ID
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Optimization Specifications for the Quasi-Newton Algorithm for
+Continuous Outcomes
+  Maximum number of iterations                                 100
+  Convergence criterion                                  0.100D-05
+Optimization Specifications for the EM Algorithm
+  Maximum number of iterations                                 500
+  Convergence criteria
+    Loglikelihood change                                 0.100D-02
+    Relative loglikelihood change                        0.100D-05
+    Derivative                                           0.100D-02
+Optimization Specifications for the M step of the EM Algorithm for
+Categorical Latent variables
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-02
+  Basis for M step termination                           ITERATION
+Optimization Specifications for the M step of the EM Algorithm for
+Censored, Binary or Ordered Categorical (Ordinal), Unordered
+Categorical (Nominal) and Count Outcomes
+  Number of M step iterations                                    1
+  M step convergence criterion                           0.100D-02
+  Basis for M step termination                           ITERATION
+  Maximum value for logit thresholds                            15
+  Minimum value for logit thresholds                           -15
+  Minimum expected cell size for chi-square              0.100D-01
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+Integration Specifications
+  Type                                                    STANDARD
+  Number of integration points                                  15
+  Dimensions of numerical integration                            1
+  Adaptive quadrature                                           ON
+Link                                                         LOGIT
+Cholesky                                                        ON
+
+Input data file(s)
+  sages_cfa_free.dat
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of missing data patterns            38
+     Number of y missing data patterns           0
+     Number of u missing data patterns          38
+
+
+COVARIANCE COVERAGE OF DATA
+
+Minimum covariance coverage value   0.100
+
+
+     PROPORTION OF DATA PRESENT FOR U
+
+
+           Covariance Coverage
+              Q1            Q2            Q3            Q4            Q5
+              ________      ________      ________      ________      ________
+ Q1             0.994
+ Q2             0.993         0.994
+ Q3             0.994         0.994         0.995
+ Q4             0.984         0.984         0.984         0.984
+ Q5             0.983         0.983         0.983         0.984         0.984
+ Q6             0.994         0.993         0.995         0.984         0.984
+ Q7             0.994         0.992         0.994         0.984         0.983
+ Q8             0.967         0.966         0.967         0.963         0.962
+ Q9             0.967         0.966         0.967         0.962         0.961
+ Q10            0.962         0.961         0.963         0.959         0.958
+ Q11            0.990         0.989         0.991         0.980         0.979
+ Q12            0.990         0.989         0.991         0.980         0.979
+ Q13            0.983         0.982         0.984         0.976         0.975
+ Q16            0.985         0.985         0.986         0.977         0.976
+ Q18            0.989         0.989         0.990         0.979         0.978
+ Q19            0.980         0.979         0.981         0.971         0.970
+ Q20            0.981         0.980         0.982         0.975         0.974
+
+
+           Covariance Coverage
+              Q6            Q7            Q8            Q9            Q10
+              ________      ________      ________      ________      ________
+ Q6             0.996
+ Q7             0.995         0.995
+ Q8             0.968         0.967         0.968
+ Q9             0.968         0.967         0.967         0.968
+ Q10            0.964         0.963         0.963         0.962         0.964
+ Q11            0.992         0.990         0.967         0.967         0.963
+ Q12            0.992         0.990         0.967         0.967         0.963
+ Q13            0.984         0.984         0.965         0.965         0.962
+ Q16            0.987         0.986         0.966         0.966         0.962
+ Q18            0.991         0.990         0.967         0.967         0.963
+ Q19            0.982         0.980         0.960         0.960         0.957
+ Q20            0.983         0.982         0.964         0.964         0.960
+
+
+           Covariance Coverage
+              Q11           Q12           Q13           Q16           Q18
+              ________      ________      ________      ________      ________
+ Q11            0.995
+ Q12            0.995         0.995
+ Q13            0.987         0.987         0.987
+ Q16            0.991         0.991         0.985         0.991
+ Q18            0.995         0.995         0.986         0.990         0.995
+ Q19            0.985         0.985         0.979         0.985         0.984
+ Q20            0.985         0.985         0.985         0.983         0.984
+
+
+           Covariance Coverage
+              Q19           Q20
+              ________      ________
+ Q19            0.985
+ Q20            0.977         0.985
+
+
+UNIVARIATE PROPORTIONS AND COUNTS FOR CATEGORICAL VARIABLES
+
+    Q1
+      Category 1    0.954         2012.000
+      Category 2    0.046           98.000
+    Q2
+      Category 1    0.895         1887.000
+      Category 2    0.105          222.000
+    Q3
+      Category 1    0.939         1984.000
+      Category 2    0.061          128.000
+    Q4
+      Category 1    0.870         1817.000
+      Category 2    0.130          272.000
+    Q5
+      Category 1    0.560         1168.000
+      Category 2    0.440          919.000
+    Q6
+      Category 1    0.925         1955.000
+      Category 2    0.075          159.000
+    Q7
+      Category 1    0.728         1537.000
+      Category 2    0.272          574.000
+    Q8
+      Category 1    0.825         1694.000
+      Category 2    0.175          360.000
+    Q9
+      Category 1    0.917         1883.000
+      Category 2    0.083          171.000
+    Q10
+      Category 1    0.925         1892.000
+      Category 2    0.075          153.000
+    Q11
+      Category 1    0.941         1988.000
+      Category 2    0.059          124.000
+    Q12
+      Category 1    0.999         2109.000
+      Category 2    0.001            3.000
+    Q13
+      Category 1    0.898         1881.000
+      Category 2    0.102          213.000
+    Q16
+      Category 1    0.646         1357.000
+      Category 2    0.354          745.000
+    Q18
+      Category 1    0.983         2075.000
+      Category 2    0.017           36.000
+    Q19
+      Category 1    0.933         1949.000
+      Category 2    0.067          141.000
+    Q20
+      Category 1    0.980         2048.000
+      Category 2    0.020           42.000
+
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                       34
+
+Loglikelihood
+
+          H0 Value                       -9299.363
+          H0 Scaling Correction Factor      1.0690
+            for MLR
+
+Information Criteria
+
+          Akaike (AIC)                   18666.726
+          Bayesian (BIC)                 18859.170
+          Sample-Size Adjusted BIC       18751.148
+            (n* = (n + 2) / 24)
+
+Chi-Square Test of Model Fit for the Binary and Ordered Categorical
+(Ordinal) Outcomes**
+
+          Pearson Chi-Square
+
+          Value                           5079.649
+          Degrees of Freedom                130926
+          P-Value                           1.0000
+
+          Likelihood Ratio Chi-Square
+
+          Value                           1850.989
+          Degrees of Freedom                130926
+          P-Value                           1.0000
+
+** Of the 894720 cells in the frequency table, 111
+   were deleted in the calculation of chi-square due to extreme values.
+
+Chi-Square Test for MCAR under the Unrestricted Latent Class Indicator Model
+
+          Pearson Chi-Square
+
+          Value                            817.478
+          Degrees of Freedom                763611
+          P-Value                           1.0000
+
+          Likelihood Ratio Chi-Square
+
+          Value                            349.901
+          Degrees of Freedom                763611
+          P-Value                           1.0000
+
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ F        BY
+    Q1                 2.526      0.292      8.651      0.000
+    Q2                 1.704      0.154     11.101      0.000
+    Q3                 2.540      0.274      9.265      0.000
+    Q4                 2.143      0.161     13.300      0.000
+    Q5                 1.555      0.111     14.016      0.000
+    Q6                 2.587      0.261      9.913      0.000
+    Q7                 1.969      0.133     14.853      0.000
+    Q8                 1.112      0.107     10.420      0.000
+    Q9                 1.043      0.126      8.291      0.000
+    Q10                1.024      0.133      7.685      0.000
+    Q11                2.087      0.204     10.213      0.000
+    Q12                1.490      0.738      2.019      0.043
+    Q13                2.147      0.179     12.003      0.000
+    Q16                3.591      0.383      9.376      0.000
+    Q18                1.702      0.218      7.796      0.000
+    Q19                1.949      0.152     12.837      0.000
+    Q20                2.290      0.284      8.057      0.000
+
+ Thresholds
+    Q1$1               5.201      0.403     12.899      0.000
+    Q2$1               3.047      0.160     19.015      0.000
+    Q3$1               4.805      0.350     13.722      0.000
+    Q4$1               3.017      0.156     19.297      0.000
+    Q5$1               0.310      0.064      4.847      0.000
+    Q6$1               4.499      0.319     14.103      0.000
+    Q7$1               1.573      0.097     16.187      0.000
+    Q8$1               1.801      0.081     22.284      0.000
+    Q9$1               2.713      0.113     24.083      0.000
+    Q10$1              2.815      0.118     23.891      0.000
+    Q11$1              4.242      0.262     16.211      0.000
+    Q12$1              7.593      1.163      6.527      0.000
+    Q13$1              3.403      0.191     17.850      0.000
+    Q16$1              1.441      0.157      9.158      0.000
+    Q18$1              5.287      0.322     16.435      0.000
+    Q19$1              3.846      0.176     21.845      0.000
+    Q20$1              5.782      0.404     14.306      0.000
+
+ Variances
+    F                  1.000      0.000    999.000    999.000
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Condition Number for the Information Matrix              0.143E-02
+       (ratio of smallest to largest eigenvalue)
+
+
+RESULTS IN PROBABILITY SCALE
+
+                    Estimate
+
+ Q1
+    Category 1         0.953
+    Category 2         0.047
+ Q2
+    Category 1         0.894
+    Category 2         0.106
+ Q3
+    Category 1         0.939
+    Category 2         0.061
+ Q4
+    Category 1         0.862
+    Category 2         0.138
+ Q5
+    Category 1         0.554
+    Category 2         0.446
+ Q6
+    Category 1         0.924
+    Category 2         0.076
+ Q7
+    Category 1         0.726
+    Category 2         0.274
+ Q8
+    Category 1         0.813
+    Category 2         0.187
+ Q9
+    Category 1         0.909
+    Category 2         0.091
+ Q10
+    Category 1         0.918
+    Category 2         0.082
+ Q11
+    Category 1         0.939
+    Category 2         0.061
+ Q12
+    Category 1         0.998
+    Category 2         0.002
+ Q13
+    Category 1         0.890
+    Category 2         0.110
+ Q16
+    Category 1         0.641
+    Category 2         0.359
+ Q18
+    Category 1         0.982
+    Category 2         0.018
+ Q19
+    Category 1         0.928
+    Category 2         0.072
+ Q20
+    Category 1         0.976
+    Category 2         0.024
+
+
+IRT PARAMETERIZATION
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ Item Discriminations
+
+ F        BY
+    Q1                 2.526      0.292      8.651      0.000
+    Q2                 1.704      0.154     11.101      0.000
+    Q3                 2.540      0.274      9.265      0.000
+    Q4                 2.143      0.161     13.300      0.000
+    Q5                 1.555      0.111     14.016      0.000
+    Q6                 2.587      0.261      9.913      0.000
+    Q7                 1.969      0.133     14.853      0.000
+    Q8                 1.112      0.107     10.420      0.000
+    Q9                 1.043      0.126      8.291      0.000
+    Q10                1.024      0.133      7.685      0.000
+    Q11                2.087      0.204     10.213      0.000
+    Q12                1.490      0.738      2.019      0.043
+    Q13                2.147      0.179     12.003      0.000
+    Q16                3.591      0.383      9.376      0.000
+    Q18                1.702      0.218      7.796      0.000
+    Q19                1.949      0.152     12.837      0.000
+    Q20                2.290      0.284      8.057      0.000
+
+ Item Difficulties
+    Q1                 2.059      0.108     19.131      0.000
+    Q2                 1.788      0.100     17.850      0.000
+    Q3                 1.891      0.094     20.115      0.000
+    Q4                 1.408      0.066     21.388      0.000
+    Q5                 0.199      0.041      4.871      0.000
+    Q6                 1.739      0.080     21.759      0.000
+    Q7                 0.799      0.045     17.662      0.000
+    Q8                 1.619      0.130     12.431      0.000
+    Q9                 2.601      0.259     10.055      0.000
+    Q10                2.750      0.297      9.243      0.000
+    Q11                2.032      0.106     19.112      0.000
+    Q12                5.097      1.889      2.698      0.007
+    Q13                1.585      0.075     21.155      0.000
+    Q16                0.401      0.033     12.328      0.000
+    Q18                3.107      0.268     11.609      0.000
+    Q19                1.974      0.102     19.373      0.000
+    Q20                2.525      0.177     14.243      0.000
+
+ Variances
+    F                  1.000      0.000      0.000      1.000
+
+
+STANDARDIZED MODEL RESULTS
+
+
+STDYX Standardization
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ F        BY
+    Q1                 0.812      0.032     25.430      0.000
+    Q2                 0.685      0.033     20.902      0.000
+    Q3                 0.814      0.030     27.440      0.000
+    Q4                 0.763      0.024     31.862      0.000
+    Q5                 0.651      0.027     24.322      0.000
+    Q6                 0.819      0.027     30.072      0.000
+    Q7                 0.736      0.023     32.358      0.000
+    Q8                 0.523      0.036     14.337      0.000
+    Q9                 0.499      0.045     11.033      0.000
+    Q10                0.492      0.049     10.134      0.000
+    Q11                0.755      0.032     23.736      0.000
+    Q12                0.635      0.188      3.381      0.001
+    Q13                0.764      0.027     28.823      0.000
+    Q16                0.893      0.019     46.123      0.000
+    Q18                0.684      0.047     14.658      0.000
+    Q19                0.732      0.026     27.657      0.000
+    Q20                0.784      0.038     20.902      0.000
+
+ Thresholds
+    Q1$1               1.672      0.049     34.336      0.000
+    Q2$1               1.224      0.037     32.974      0.000
+    Q3$1               1.539      0.044     34.815      0.000
+    Q4$1               1.075      0.034     31.316      0.000
+    Q5$1               0.130      0.026      4.930      0.000
+    Q6$1               1.424      0.041     34.825      0.000
+    Q7$1               0.588      0.029     20.582      0.000
+    Q8$1               0.846      0.032     26.701      0.000
+    Q9$1               1.296      0.042     31.054      0.000
+    Q10$1              1.352      0.044     30.804      0.000
+    Q11$1              1.534      0.045     34.366      0.000
+    Q12$1              3.235      0.329      9.827      0.000
+    Q13$1              1.211      0.037     32.895      0.000
+    Q16$1              0.358      0.027     13.103      0.000
+    Q18$1              2.126      0.078     27.257      0.000
+    Q19$1              1.445      0.043     33.501      0.000
+    Q20$1              1.979      0.070     28.131      0.000
+
+ Variances
+    F                  1.000      0.000    999.000    999.000
+
+
+STDY Standardization
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ F        BY
+    Q1                 0.812      0.032     25.430      0.000
+    Q2                 0.685      0.033     20.902      0.000
+    Q3                 0.814      0.030     27.440      0.000
+    Q4                 0.763      0.024     31.862      0.000
+    Q5                 0.651      0.027     24.322      0.000
+    Q6                 0.819      0.027     30.072      0.000
+    Q7                 0.736      0.023     32.358      0.000
+    Q8                 0.523      0.036     14.337      0.000
+    Q9                 0.499      0.045     11.033      0.000
+    Q10                0.492      0.049     10.134      0.000
+    Q11                0.755      0.032     23.736      0.000
+    Q12                0.635      0.188      3.381      0.001
+    Q13                0.764      0.027     28.823      0.000
+    Q16                0.893      0.019     46.123      0.000
+    Q18                0.684      0.047     14.658      0.000
+    Q19                0.732      0.026     27.657      0.000
+    Q20                0.784      0.038     20.902      0.000
+
+ Thresholds
+    Q1$1               1.672      0.049     34.336      0.000
+    Q2$1               1.224      0.037     32.974      0.000
+    Q3$1               1.539      0.044     34.815      0.000
+    Q4$1               1.075      0.034     31.316      0.000
+    Q5$1               0.130      0.026      4.930      0.000
+    Q6$1               1.424      0.041     34.825      0.000
+    Q7$1               0.588      0.029     20.582      0.000
+    Q8$1               0.846      0.032     26.701      0.000
+    Q9$1               1.296      0.042     31.054      0.000
+    Q10$1              1.352      0.044     30.804      0.000
+    Q11$1              1.534      0.045     34.366      0.000
+    Q12$1              3.235      0.329      9.827      0.000
+    Q13$1              1.211      0.037     32.895      0.000
+    Q16$1              0.358      0.027     13.103      0.000
+    Q18$1              2.126      0.078     27.257      0.000
+    Q19$1              1.445      0.043     33.501      0.000
+    Q20$1              1.979      0.070     28.131      0.000
+
+ Variances
+    F                  1.000      0.000    999.000    999.000
+
+
+STD Standardization
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ F        BY
+    Q1                 2.526      0.292      8.651      0.000
+    Q2                 1.704      0.154     11.101      0.000
+    Q3                 2.540      0.274      9.265      0.000
+    Q4                 2.143      0.161     13.300      0.000
+    Q5                 1.555      0.111     14.016      0.000
+    Q6                 2.587      0.261      9.913      0.000
+    Q7                 1.969      0.133     14.853      0.000
+    Q8                 1.112      0.107     10.420      0.000
+    Q9                 1.043      0.126      8.291      0.000
+    Q10                1.024      0.133      7.685      0.000
+    Q11                2.087      0.204     10.213      0.000
+    Q12                1.490      0.738      2.019      0.043
+    Q13                2.147      0.179     12.003      0.000
+    Q16                3.591      0.383      9.376      0.000
+    Q18                1.702      0.218      7.796      0.000
+    Q19                1.949      0.152     12.837      0.000
+    Q20                2.290      0.284      8.057      0.000
+
+ Thresholds
+    Q1$1               5.201      0.403     12.899      0.000
+    Q2$1               3.047      0.160     19.015      0.000
+    Q3$1               4.805      0.350     13.722      0.000
+    Q4$1               3.017      0.156     19.297      0.000
+    Q5$1               0.310      0.064      4.847      0.000
+    Q6$1               4.499      0.319     14.103      0.000
+    Q7$1               1.573      0.097     16.187      0.000
+    Q8$1               1.801      0.081     22.284      0.000
+    Q9$1               2.713      0.113     24.083      0.000
+    Q10$1              2.815      0.118     23.891      0.000
+    Q11$1              4.242      0.262     16.211      0.000
+    Q12$1              7.593      1.163      6.527      0.000
+    Q13$1              3.403      0.191     17.850      0.000
+    Q16$1              1.441      0.157      9.158      0.000
+    Q18$1              5.287      0.322     16.435      0.000
+    Q19$1              3.846      0.176     21.845      0.000
+    Q20$1              5.782      0.404     14.306      0.000
+
+ Variances
+    F                  1.000      0.000    999.000    999.000
+
+
+R-SQUARE
+
+    Observed                                        Two-Tailed
+    Variable        Estimate       S.E.  Est./S.E.    P-Value
+
+    Q1                 0.660      0.052     12.715      0.000
+    Q2                 0.469      0.045     10.451      0.000
+    Q3                 0.662      0.048     13.720      0.000
+    Q4                 0.583      0.037     15.931      0.000
+    Q5                 0.424      0.035     12.161      0.000
+    Q6                 0.670      0.045     15.036      0.000
+    Q7                 0.541      0.033     16.179      0.000
+    Q8                 0.273      0.038      7.168      0.000
+    Q9                 0.249      0.045      5.517      0.000
+    Q10                0.242      0.048      5.067      0.000
+    Q11                0.570      0.048     11.868      0.000
+    Q12                0.403      0.238      1.691      0.091
+    Q13                0.584      0.040     14.411      0.000
+    Q16                0.797      0.035     23.062      0.000
+    Q18                0.468      0.064      7.329      0.000
+    Q19                0.536      0.039     13.829      0.000
+    Q20                0.615      0.059     10.451      0.000
+
+
+     Beginning Time:  14:09:09
+        Ending Time:  14:09:10
+       Elapsed Time:  00:00:01
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2023 Muthen & Muthen

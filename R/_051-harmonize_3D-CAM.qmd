@@ -1,0 +1,274 @@
+
+
+```{r}
+combined_df <- readRDS(file=fs::path(r_objects_folder, "051_combined_df.rds"))
+combined_df_old <- readRDS(file=fs::path(r_objects_folder, "025_combined_df.rds"))
+sages_param_stdyx <- readRDS(file=fs::path(r_objects_folder, "051_sages_param_stdyx.rds"))
+duke_param_stdyx  <- readRDS(file=fs::path(r_objects_folder, "051_duke_param_stdyx.rds"))
+duke_param  <- readRDS(file=fs::path(r_objects_folder, "051_duke_param.rds"))
+sages_param  <- readRDS(file=fs::path(r_objects_folder, "051_sages_param.rds"))
+
+
+# sages_free_param <- readRDS(file=fs::path(r_objects_folder, "050_sages_free_param.rds"))
+# sages_free_param_stdyx <- readRDS(file=fs::path(r_objects_folder, "050_sages_free_param_stdyx.rds"))
+
+```
+
+# Harmonizing the 3D-CAM severity scores
+
+The harmonization process consisted of several steps.
+
+1. Fit a CFA model in the SAGES data
+2. Fix the item parameters for items 1, 2, 3, 4, 5, 6, 7, and 9 to what was estimated in SAGES
+3. Fit a CFA model in Intuit with paramters for items 1, 2, 3, 4, 5, 6, 7, and 9 fixed and the rest freely estimated.
+4. Fix all item parameters to estimated values, mean =0, variance = 1, and fit a CFA model to get the factor scores.
+
+## Factor loadings (standardized)
+
+@tbl-std-fct-loadings shows the standardized factor loadings from SAGES.  This is from step 1 in the list above.  
+
+::: {.callout-note}
+The following items have low factor loadings in the Intuit study:
+
+* 3D-CAM 08 - Have you felt confused at any time during the last day?
+* 3D-CAM 10 - During the past day, did you see things that were not really there?
+
+:::
+
+```{r}
+#| tbl-cap: Standardized factor loadings by study
+#| tbl-cap-location: top
+#| label: tbl-std-fct-loadings
+
+data_dict <- combined_df_old %>% 
+  labelled::look_for()
+
+data_dict <- data_dict %>%
+  select(variable, label) %>%
+  filter(str_detect(variable, "q")) %>%
+  filter(!variable %in% c("dcam_q1_result", "dcam_q2_result", "dcam_q3_result")) %>%
+  mutate(item = variable,
+         item = str_remove(item, "dcam_"),
+         item = str_remove(item, "_result"),
+         item = str_remove(item, "_errors"),
+         item = str_remove(item, "_rev"),
+         item = toupper(item))
+
+
+sages_param_stdyx %>%
+  mutate(study = "SAGES") %>%
+  bind_rows(duke_param_stdyx) %>%
+  mutate(study = case_when(is.na(study) ~ "Intuit",
+                           TRUE ~ study)) %>%
+  filter(!paramHeader %in% c("Thresholds", "Variances", "Means")) %>%
+  select(study, param, est) %>%
+  pivot_wider(values_from = est, names_from = study) %>%
+  mutate(item_number = str_sub(param, 2, -1) %>% as.numeric()) %>%
+  arrange(item_number) %>%
+  left_join(data_dict, by = c("param" = "item")) %>%
+  select(label, SAGES, Intuit) %>%
+  gt::gt()
+
+
+```
+
+
+```{r}
+#| tbl-cap: Unstandardized factor loading by study
+#| tbl-cap-location: top
+#| label: tbl-unstd-fct-loadings
+
+data_dict <- combined_df_old %>% 
+  labelled::look_for()
+
+data_dict <- data_dict %>%
+  select(variable, label) %>%
+  filter(str_detect(variable, "q")) %>%
+  filter(!variable %in% c("dcam_q1_result", "dcam_q2_result", "dcam_q3_result")) %>%
+  mutate(item = variable,
+         item = str_remove(item, "dcam_"),
+         item = str_remove(item, "_result"),
+         item = str_remove(item, "_errors"),
+         item = str_remove(item, "_rev"),
+         item = toupper(item))
+
+
+sages_param %>%
+  mutate(study = "SAGES") %>%
+  bind_rows(duke_param) %>%
+  mutate(study = case_when(is.na(study) ~ "Intuit",
+                           TRUE ~ study)) %>%
+  filter(!paramHeader %in% c("Thresholds", "Variances", "Means")) %>%
+  select(study, param, est) %>%
+  pivot_wider(values_from = est, names_from = study) %>%
+  mutate(item_number = str_sub(param, 2, -1) %>% as.numeric()) %>%
+  arrange(item_number) %>%
+  left_join(data_dict, by = c("param" = "item")) %>%
+  select(label, SAGES, Intuit) %>%
+  gt::gt()
+
+```
+
+
+
+
+## Test Information
+
+```{r}
+#| fig-cap: Test Information curve of 3D-CAM in Intuit and SAGES
+#| fig-cap-location: top
+#| label: fig-test_info
+
+theta <- seq(-4, 4, by= .01)
+
+foo_fl_duke <- duke_param %>%
+  filter(!paramHeader %in% c("Thresholds", "Variances", "Means")) %>%
+  select(param, est) %>%
+  rename(item_number = param) %>%
+  rename(estimate = est) %>%
+  mutate(parameter_type = "factor_loading")
+
+foo_t_duke <- duke_param %>%
+  filter(paramHeader %in% c("Thresholds")) %>%
+  separate(param, into = c("item_number", "T"), sep = "\\$") %>%
+  select(item_number, T, est) %>%
+  rename(estimate = est) %>%
+  mutate(parameter_type = "threshold")
+
+foo_duke <- foo_fl_duke %>%
+  bind_rows(foo_t_duke)
+
+goo_duke <- foo_duke %>%
+  mutate(item = item_number) %>%
+  group_by(item) %>%
+  nest() %>%
+  rename(item_bank = data) %>%
+  mutate(item_info = map(item_bank, MplusIRTtools::calc_item_info,  theta = theta))
+
+test_info_duke <- goo_duke %>%
+  select(item, item_info) %>%
+  unnest(cols = c(item_info)) %>%
+  group_by(theta) %>%
+  dplyr::summarize(i = sum(info),
+              sem = 1/sqrt(i)) %>%
+  mutate(study = "Intuit")
+
+foo_fl_sages <- sages_param %>%
+  filter(!paramHeader %in% c("Thresholds", "Variances", "Means")) %>%
+  select(param, est) %>%
+  rename(item_number = param) %>%
+  rename(estimate = est) %>%
+  mutate(parameter_type = "factor_loading")
+
+foo_t_sages <- sages_param %>%
+  filter(paramHeader %in% c("Thresholds")) %>%
+  separate(param, into = c("item_number", "T"), sep = "\\$") %>%
+  select(item_number, T, est) %>%
+  rename(estimate = est) %>%
+  mutate(parameter_type = "threshold")
+
+foo_sages <- foo_fl_sages %>%
+  bind_rows(foo_t_sages)
+
+goo_sages <- foo_sages %>%
+  mutate(item = item_number) %>%
+  group_by(item) %>%
+  nest() %>%
+  rename(item_bank = data) %>%
+  mutate(item_info = map(item_bank, MplusIRTtools::calc_item_info,  theta = theta))
+
+test_info_sages <- goo_sages %>%
+  select(item, item_info) %>%
+  unnest(cols = c(item_info)) %>%
+  group_by(theta) %>%
+  dplyr::summarize(i = sum(info),
+              sem = 1/sqrt(i)) %>%
+  mutate(study = "SAGES")
+
+test_info <- test_info_duke %>%
+  bind_rows(test_info_sages)
+
+
+ggplot(test_info, aes(x = theta, y = i, color = study)) +
+  geom_line() +
+  scale_x_continuous("3D-CAM factor score", limits = c(-3, 3)) +
+  scale_y_continuous("Information") +
+  geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+  hrbrthemes::theme_ipsum()
+```
+
+```{r}
+#| fig-cap: Standard error mesaurement curve of 3D-CAM in Intuit and SAGES
+#| fig-cap-location: top
+#| label: fig-test_sem
+
+test_info %>%
+  filter(theta >= -2 & theta <=3) %>%
+  group_by(study) %>%
+  ggplot(aes(x = theta, y = sem, color = study)) +
+    geom_line() +
+    scale_x_continuous("3D-CAM factor score", limits = c(-2, 3)) +
+    scale_y_continuous("SEM") +
+    geom_hline(yintercept = .316) +
+    geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+    hrbrthemes::theme_ipsum() 
+```
+
+```{r}
+#| fig-cap: Standard error mesaurement curve of 3D-CAM in Intuit and SAGES
+#| fig-cap-location: top
+#| label: fig-test_sem-direct-labels
+
+test_info %>%
+  filter(theta >= -2 & theta <=3) %>%
+  group_by(study) %>%
+  ggplot(aes(x = theta, y = sem, color = study)) +
+    geom_hline(yintercept = .316) +
+    geom_line()  +
+    gghighlight::gghighlight(TRUE, use_direct_label = TRUE, line_label_type = c("text_path")) +
+    geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+    hrbrthemes::theme_ipsum() +
+    scale_x_continuous("3D-CAM factor score") +
+    scale_y_continuous("SEM")
+
+
+```
+
+## Factor score summary
+
+```{r}
+#| tbl-cap: Descriptive statistics of harmonized 3D-CAM severity factor score
+#| tbl-cap-location: top
+#| label: tbl-factor-scores
+
+combined_df %>%
+  select(study, F) %>%
+  gtsummary::tbl_summary(by = study,
+                         type = gtsummary::all_continuous() ~ "continuous2",
+                         statistic = gtsummary::all_continuous() ~ c(
+                                        "{N_nonmiss}",
+                                        "{mean} ({sd})",
+                                        "{median} ({p25}, {p75})",
+                                        "{min}, {max}")
+                         )
+  
+```
+
+```{r}
+#| fig-cap: Distribution of harmonized factor scores
+#| fig-cap-location: top
+#| label: fig-dist-factor-scores
+
+
+combined_df %>%
+  ggplot(aes(x = study, y = F, fill=study)) +
+  scale_y_continuous("3D-CAM severity factor score", limits = c(-1, 4)) +
+    geom_violin(width = 1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    viridis::scale_fill_viridis(discrete = TRUE, alpha = .9) +
+    hrbrthemes::theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    )
+```

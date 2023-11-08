@@ -1,0 +1,253 @@
+
+# Convert factor score scale to 3D-CAM-S score scale
+
+The latent factor score is on a N(0, 1) scale.  To aid interpretation, we will transform it to the original 3D-CAM severity scale.  This is the process:
+
+1. In the Intuit study, regress the 3D-CAM score on the factor score using restricted cubic splines.
+2. Use the model to get predicted #D-CAM scores using the factor scores from SAGES.  Predicted values less that 0 will be rounded up to 0.
+3. The new 3D-CAM severity score will be the original 3D-CAM score in Intuit, and the predicted score in SAGES.  
+
+```{r}
+combined_df <- readRDS(file=fs::path(r_objects_folder, "060_combined_df.rds"))
+
+```
+
+## Factor score and 3D-CAM-S score in Intuit
+
+```{r}
+#| fig-cap: Relationship between severity score and factor score in Intuit
+#| tbl-cap-location: top
+#| label: fig-severity-vs-facore-intuit
+
+# combined_df %>%
+#   filter(study=="Intuit") %>%
+#   ggplot(aes(x = F, y = dcam_score)) +
+#     geom_jitter() +
+#     geom_smooth() +
+#     scale_y_continuous("3D-CAM severity score", breaks = seq(0, 12, 2)) +
+#     scale_x_continuous("3D-CAM factor score") +
+#     hrbrthemes::theme_ipsum()
+
+combined_df %>%
+  filter(study=="Intuit") %>%
+  select(F, dcam_score) %>%
+  group_by(F, dcam_score) %>%
+  count() %>%
+  ggplot(aes(x = F, y = dcam_score)) +
+    geom_point(aes(size = n)) +
+    geom_smooth() +
+    scale_y_continuous("3D-CAM severity score", breaks = seq(0, 12, 2)) +
+    scale_x_continuous("3D-CAM factor score") +
+    hrbrthemes::theme_ipsum()
+
+```
+
+## 3D-CAM-S score: Observed vs Predicted
+
+### Intuit
+
+```{r}
+#| fig-cap: Relationship between observed and predicted severity scores in Intuit
+#| label: fig-obs-vs-pred-intuit
+
+# combined_df %>%
+#   filter(study=="Intuit") %>%
+#   ggplot(aes(x = yhat, y = dcam_score)) +
+#     geom_jitter() +
+#     geom_smooth() +
+#     geom_abline(intercept=0, slope=1) +
+#     scale_y_continuous("3D-CAM severity score", breaks = seq(0, 12, 2)) +
+#     scale_x_continuous("3D-CAM predicted score", breaks = seq(0, 12, 2), limits = c(0, 12)) +
+#     hrbrthemes::theme_ipsum() +
+#     coord_fixed()
+    
+combined_df %>%
+  filter(study=="Intuit") %>%
+  select(yhat, dcam_score) %>%
+  group_by(yhat, dcam_score) %>%
+  count() %>%
+    ggplot(aes(x = yhat, y = dcam_score)) +
+    geom_point(aes(size = n)) +
+    geom_smooth() +
+    geom_abline(intercept=0, slope=1) +
+    scale_y_continuous("3D-CAM severity score", breaks = seq(0, 12, 2)) +
+    scale_x_continuous("3D-CAM predicted score", breaks = seq(0, 12, 2), limits = c(0, 12)) +
+    hrbrthemes::theme_ipsum() +
+    coord_fixed()
+
+```
+
+### SAGES
+
+```{r}
+#| fig-cap: Relationship between unadjusted and adjusted severity scores in SAGES
+#| label: fig-obs-vs-pred-sages
+
+# combined_df %>%
+#   filter(study=="SAGES") %>%
+#   ggplot(aes(x = harmonized_3dcam, y = dcam_score)) +
+#     geom_jitter() +
+#     geom_smooth() +
+#     geom_abline(intercept=0, slope=1) +
+#     scale_y_continuous("3D-CAM unadjusted severity score", breaks = seq(0, 16, 2), limits = c(0, 16)) +
+#     scale_x_continuous("3D-CAM adjusted severity score", breaks = seq(0, 16, 2), limits = c(0, 16)) +
+#     hrbrthemes::theme_ipsum() +
+#     coord_fixed()
+    
+combined_df %>%
+  filter(study=="SAGES") %>%
+  select(harmonized_3dcam, dcam_score) %>%
+  group_by(harmonized_3dcam, dcam_score) %>%
+  count() %>%
+  ggplot(aes(x = harmonized_3dcam, y = dcam_score)) +
+    geom_point(aes(size=n)) +
+    geom_smooth() +
+    geom_abline(intercept=0, slope=1) +
+    scale_y_continuous("3D-CAM unadjusted severity score", breaks = seq(0, 16, 2), limits = c(0, 16)) +
+    scale_x_continuous("3D-CAM adjusted severity score", breaks = seq(0, 16, 2), limits = c(0, 16)) +
+    hrbrthemes::theme_ipsum() +
+    coord_fixed()
+
+```
+
+## 3D-CAM-S score summary
+
+```{r}
+#| tbl-cap: Descriptive statistics of predicted 3D-CAM severity score
+#| label: tbl-desc-pred-severity-scores
+
+
+combined_df %>%
+  mutate(pred_3dcam = case_when(yhat<0 ~ 0,
+                                TRUE ~ round(yhat, 1))) %>%
+  select(study, pred_3dcam) %>%
+  gtsummary::tbl_summary(by = study,
+                         type = gtsummary::all_continuous() ~ "continuous2",
+                         statistic = gtsummary::all_continuous() ~ c(
+                                        "{N_nonmiss}",
+                                        "{mean} ({sd})",
+                                        "{median} ({p25}, {p75})",
+                                        "{min}, {max}")
+                         )
+```
+
+```{r}
+#| tbl-cap: Descriptive statistics of observed 3D-CAM severity score in Intuit
+#| label: tbl-desc-obs-severity-scores
+#| 
+combined_df %>%
+  filter(study=="Intuit") %>%
+  select(dcam_score) %>%
+  gtsummary::tbl_summary(type = c(dcam_score) ~ "continuous2",
+                         statistic = gtsummary::all_continuous() ~ c(
+                                        "{N_nonmiss}",
+                                        "{mean} ({sd})",
+                                        "{median} ({p25}, {p75})",
+                                        "{min}, {max}")
+                         )  
+```
+
+
+```{r}
+#| fig-cap: Distribution of predicted 3D-CAM severity scores
+#| label: fig-dist-pred-severity-scores
+
+combined_df %>%
+  mutate(pred_3dcam = case_when(yhat<0 ~ 0,
+                                TRUE ~ round(yhat, 1))) %>%
+  select(study, pred_3dcam) %>%
+  ggplot(aes(x = pred_3dcam)) +
+    geom_histogram() +
+    scale_x_continuous("3D-CAM severity scores") +
+    facet_grid(rows = vars(study)) +
+    hrbrthemes::theme_ipsum()
+
+
+
+```
+
+```{r}
+#| fig-cap: Distribution of predicted 3D-CAM severity scores
+#| label: fig-dist-obs-severity-scores
+
+
+combined_df %>%
+  filter(study=="Intuit") %>%
+  select(dcam_score) %>%
+  ggplot(aes(x = dcam_score)) +
+    geom_histogram() +
+    scale_x_continuous("Observed 3D-CAM severity scores") +
+    hrbrthemes::theme_ipsum()
+```
+
+This is the prevalence of 3D-CAM scores greater than or equal to 3.
+
+```{r}
+#| tbl-cap: Crosstab of 3D-CAM severity score greater than or equal to 3 by study
+#| label: tbl-cross-3DCAM3-by-study
+
+combined_df %>%
+  select(study, harmonized_3dcam) %>%
+  mutate(del_3dcam = harmonized_3dcam>=3) %>%
+  gtsummary::tbl_cross(row = del_3dcam, col = study, 
+                       percent = c("col"),
+                       label = list(del_3dcam ~ "3D-CAM >= 3"))
+
+```
+
+This is how the 3D-CAM score greater than or equal to 3 compares to the SAGES CAM delirium.
+
+```{r}
+#| tbl-cap: Crosstab of 3D-CAM severity score greater than or equal to 3 by CAM delirium
+#| label: tbl-cross-3DCAM3-by-vdcamdelirium
+
+combined_df %>%
+  filter(study=="SAGES") %>%
+  mutate(del_3dcam = harmonized_3dcam>=3) %>%
+  gtsummary::tbl_cross(row = del_3dcam, col = vdcamdelirium, 
+                       percent = c("col"),
+                       label = list(del_3dcam ~ "3D-CAM >= 3"))
+
+```
+
+```{r}
+#| fig-cap: Association of 3D-CAM severity scores with CAM-S long-form
+#| label: fig-3DCAM-vs-CAMSLF
+
+combined_df %>%
+  filter(study=="SAGES") %>%
+  select(vdcamseveritylf, harmonized_3dcam) %>%
+  group_by(vdcamseveritylf, harmonized_3dcam) %>%
+  count() %>%
+  ggplot(aes(x = vdcamseveritylf, y = harmonized_3dcam)) +
+    geom_point(aes(size = n)) +
+    geom_smooth(se=FALSE) +
+    scale_y_continuous("CAM-S long form") +
+    scale_x_continuous("3D-CAM severity score") +
+    hrbrthemes::theme_ipsum() 
+
+
+```
+
+The correlation between the CAM-S long-form and 3D-CAM score in SAGES is `r combined_df %>% filter(study=="SAGES") %>% with(cor(vdcamseveritylf, harmonized_3dcam,use = "pairwise")) %>% round(2)`.
+
+```{r}
+#| fig-cap: Association of 3D-CAM severity scores with CAM-S short-form 
+#| label: fig-3DCAM-vs-CAMSSF
+
+combined_df %>%
+  filter(study=="SAGES") %>%
+  select(vdcamseveritysf, harmonized_3dcam) %>%
+  group_by(vdcamseveritysf, harmonized_3dcam) %>%
+  count() %>%
+  ggplot(aes(x = vdcamseveritysf, y = harmonized_3dcam)) +
+    geom_point(aes(size = n)) +
+    geom_smooth(se=FALSE) +
+    scale_y_continuous("CAM-S short form") +
+    scale_x_continuous("3D-CAM severity score") +
+    hrbrthemes::theme_ipsum() 
+
+
+```
+
+The correlation between the CAM-S short-form and 3D-CAM score in SAGES is `r combined_df %>% filter(study=="SAGES") %>% with(cor(vdcamseveritysf, harmonized_3dcam,use = "pairwise")) %>% round(2)`.

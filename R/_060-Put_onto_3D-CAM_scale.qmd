@@ -47,7 +47,7 @@ combined_df %>%
 ### Intuit
 
 ```{r}
-#| fig-cap: Relationship between observed and predicted severity scores in Intuit
+#| fig-cap: Relationship between observed and predicted severity scores in Intuit (n = 571)
 #| label: fig-obs-vs-pred-intuit
 
 # combined_df %>%
@@ -68,12 +68,13 @@ combined_df %>%
   count() %>%
     ggplot(aes(x = yhat, y = dcam_score)) +
     geom_point(aes(size = n)) +
-    geom_smooth() +
+    # geom_smooth() +
     geom_abline(intercept=0, slope=1) +
     scale_y_continuous("3D-CAM severity score", breaks = seq(0, 12, 2)) +
     scale_x_continuous("3D-CAM predicted score", breaks = seq(0, 12, 2), limits = c(0, 12)) +
     hrbrthemes::theme_ipsum() +
     coord_fixed()
+ggsave(here::here("Figures", "Duke_harmonization_intuit_3dcam_obs_pred.pdf"), device = cairo_pdf)
 
 ```
 

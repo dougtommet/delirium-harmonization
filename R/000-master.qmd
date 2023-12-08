@@ -38,4 +38,6 @@ source(here::here("R", "060-Put_onto_3D-CAM_scale.R"))
 
 {{< include _060-Put_onto_3D-CAM_scale.qmd >}}
 
+{{< include _062-info_curve.qmd >}}
+
 

@@ -221,13 +221,16 @@ test_info_sages <- goo_sages %>%
 
 test_info <- test_info_duke %>%
   bind_rows(test_info_sages)
+saveRDS(test_info, file=fs::path(r_objects_folder, "050_test_info.rds"))
 
 
 ggplot(test_info, aes(x = theta, y = i, color = study)) +
   geom_line() +
   scale_x_continuous("3D-CAM factor score") +
   scale_y_continuous("Information") +
-  geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+  geom_rug(data=combined_df, mapping=aes(x = F, color = study), inherit.aes = FALSE) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", Intuit = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "Intuit")) +
   hrbrthemes::theme_ipsum()
 
 ```

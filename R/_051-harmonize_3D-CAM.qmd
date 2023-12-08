@@ -188,13 +188,19 @@ test_info_sages <- goo_sages %>%
 test_info <- test_info_duke %>%
   bind_rows(test_info_sages)
 
+saveRDS(test_info, file=fs::path(r_objects_folder, "051_test_info.rds"))
+
 
 ggplot(test_info, aes(x = theta, y = i, color = study)) +
   geom_line() +
   scale_x_continuous("3D-CAM factor score", limits = c(-3, 3)) +
   scale_y_continuous("Information") +
-  geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+  geom_rug(data=combined_df, mapping=aes(x = F, color = study), inherit.aes = FALSE, alpha = .2) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", Intuit = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "Intuit")) +
   hrbrthemes::theme_ipsum()
+ggsave(here::here("Figures", "Duke_harmonization_test_info.pdf"), device = cairo_pdf)
+
 ```
 
 ```{r}
@@ -210,7 +216,7 @@ test_info %>%
     scale_x_continuous("3D-CAM factor score", limits = c(-2, 3)) +
     scale_y_continuous("SEM") +
     geom_hline(yintercept = .316) +
-    geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+    geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE, alpha = .2) +
     hrbrthemes::theme_ipsum() 
 ```
 
@@ -226,7 +232,7 @@ test_info %>%
     geom_hline(yintercept = .316) +
     geom_line()  +
     gghighlight::gghighlight(TRUE, use_direct_label = TRUE, line_label_type = c("text_path")) +
-    geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE) +
+    geom_rug(data=combined_df, mapping=aes(x = F), inherit.aes = FALSE, alpha = .2) +
     hrbrthemes::theme_ipsum() +
     scale_x_continuous("3D-CAM factor score") +
     scale_y_continuous("SEM")

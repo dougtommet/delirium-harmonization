@@ -1,6 +1,7 @@
 
 
 combined_df <- readRDS(file=fs::path(r_objects_folder, "051_combined_df.rds"))
+test_info <- readRDS(file=fs::path(r_objects_folder, "051_test_info.rds"))
 
 # combined_df %>%
 #   ggplot(aes(x = F, y = dcam_score, color = study)) +
@@ -18,13 +19,21 @@ dd <- datadist(duke_df)
 options(datadist="dd")
 
 
-rcs_mod <- rms::ols(dcam_score ~ rcs(F, 5), data = duke_df, x=TRUE, y=TRUE)
+duke_df %>%
+  ggplot(aes(x = F, y = dcam_score)) +
+    geom_point()
+
+rcs_mod <- rms::ols(dcam_score ~ rcs(F, 3), data = duke_df, x=TRUE, y=TRUE)
 
 duke_pred <- rms::Predict(rcs_mod, F = duke_df$F) %>%
   tibble()
 
 sages_pred <- rms::Predict(rcs_mod, F = sages_df$F) %>%
   tibble()
+
+test_info_pred <- rms::Predict(rcs_mod, F = test_info$theta) %>%
+  tibble()
+
 
 dcam_pred <- duke_pred %>%
   bind_rows(sages_pred) %>%
@@ -40,5 +49,6 @@ combined_df <- combined_df %>%
          )
 
 saveRDS(combined_df, file=fs::path(r_objects_folder, "060_combined_df.rds"))
+saveRDS(test_info_pred, file=fs::path(r_objects_folder, "060_test_info_pred.rds"))
 
 

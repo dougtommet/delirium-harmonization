@@ -7,7 +7,7 @@ sages_del_assessment <- readRDS(file=fs::path(r_objects_folder, "020_sages_del_a
 
 
 intuit_df <- intuit_df %>%
-  mutate(study = "Intuit") %>%
+  mutate(study = "INTUIT") %>%
   rename(studyid = studyno)
 
 intuit_df <- intuit_df %>%

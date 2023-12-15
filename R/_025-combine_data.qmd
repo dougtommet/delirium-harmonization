@@ -20,6 +20,7 @@ combined_df <- readRDS(file=fs::path(r_objects_folder, "025_combined_df.rds"))
 #| label: tbl-desc-items
 
 combined_df %>%
+  mutate(study = factor(study, labels = c("SAGES", "INTUIT"))) %>%
   select(study, dcam_q1_result, dcam_q2_result, dcam_q3_result,
          q4_errors, q5_errors, q6_errors, q7_errors,
          dcam_q8_result, dcam_q9_result, dcam_q10_result, dcam_q11_result, dcam_q12_result,

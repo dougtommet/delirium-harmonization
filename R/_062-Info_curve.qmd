@@ -2,20 +2,42 @@
 
 ```{r}
 combined_df <- readRDS(file=fs::path(r_objects_folder, "060_combined_df.rds"))
-test_info_pred <- readRDS(file=fs::path(r_objects_folder, "060_test_info_pred.rds"))
-test_info <- readRDS(file=fs::path(r_objects_folder, "051_test_info.rds"))
+test_info <- readRDS(file=fs::path(r_objects_folder, "060_test_info.rds"))
 
 
 ```
 
-```{r}
-test_info <- test_info %>%
-  bind_cols(test_info_pred) %>%
-  select(-lower, -upper)
-```
+The factor score was rescaled to the 3D-CAM score using a non-linear (restricted cubic splines) function.  To get the SEM onto the same scale, we have to use an unconventional approach.  In most cases when we transform the factor score scale, it is by a constant amount.  For example, putting the GCP on the T-score means the factor score is multiplied by a constant of 10, so the SEM are also multiplied by the same amount.  The non-linear function means that some parts of the scale are squeezed together, other parts are stretched a little and other parts are stretched alot.  To find out how much to stretch or shrink, I found 1 unit differences in the factor scale and then find the corresponding difference in the 3D-CAM scale.  This difference would then be used to scale the SEM.  If the nonlinear function squeezed the scale, the difference would be less than one, and the SEM would be shrunk proportionately. If the nonlinear function stretched the scale, the difference would be greater than one, and the SEM would be inflated. 
+
 
 ```{r}
-#| fig-cap: Test Information curve of predicted 3D-CAM in Intuit and SAGES
+#| fig-cap: Illustration of the scale transformation
+#| fig-cap-location: top
+#| label: fig-scale_transform
+
+test_info %>%
+  filter(study=="INTUIT") %>%
+  filter(theta %in% seq(-4, 4, 1)) %>%
+  select(theta, yhat) %>%
+  mutate(theta_scale = 1,
+         cam_scale = 2,
+         theta_scale = factor(theta_scale, levels = c(1, 2), labels = c("theta", "3D-CAM"))
+         ) %>%
+  ggplot(aes(y = theta_scale)) +
+    geom_segment(aes(x = theta, y = theta_scale, xend = yhat, yend = cam_scale), arrow = arrow()) +
+    scale_y_discrete("Scale",  drop = FALSE) +
+    scale_x_continuous("Score", limits = c(-4, 13), breaks = seq(-4, 12, 2), minor_breaks = seq(-4, 12, 1)) +
+    hrbrthemes::theme_ipsum()
+    
+
+```
+
+For reference, this is the Information function when it is on the original factor score scale.
+
+Also note that this Information function is a little inaccurate because the Mplus model used the MLR logit estimator instead of MLR probit.
+
+```{r}
+#| fig-cap: Test Information curve of predicted 3D-CAM in INTUIT and SAGES (unscaled Information)
 #| fig-cap-location: top
 #| label: fig-test_info_pred_3dcam
 
@@ -28,8 +50,34 @@ ggplot(aes(x = yhat, y = i, color = study)) +
   scale_x_continuous("Predicted 3D-CAM") +
   scale_y_continuous("Information") +
   geom_rug(data=combined_df, mapping=aes(x = harmonized_3dcam, color = study), inherit.aes = FALSE, alpha = .2) +
-  scale_color_manual("Study", values = c(SAGES = "#d95f02", Intuit = "#7570b3"),
-                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "Intuit")) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
+  hrbrthemes::theme_ipsum()
+
+# ggsave(here::here("Figures", "Duke_harmonization_test_info_pred_3dcam.pdf"), device = cairo_pdf)
+
+
+
+```
+
+The rescaled Information function.
+
+```{r}
+#| fig-cap: Test Information curve of predicted 3D-CAM in INTUIT and SAGES (Information from the scaled SEM)
+#| fig-cap-location: top
+#| label: fig-test_info_pred_3dcam1
+
+
+
+test_info %>%
+  filter(yhat>=0) %>%
+ggplot(aes(x = yhat, y = info1, color = study)) +
+  geom_line() +
+  scale_x_continuous("Predicted 3D-CAM") +
+  scale_y_continuous("Information") +
+  geom_rug(data=combined_df, mapping=aes(x = harmonized_3dcam, color = study), inherit.aes = FALSE, alpha = .2) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
   hrbrthemes::theme_ipsum()
 
 ggsave(here::here("Figures", "Duke_harmonization_test_info_pred_3dcam.pdf"), device = cairo_pdf)
@@ -38,50 +86,112 @@ ggsave(here::here("Figures", "Duke_harmonization_test_info_pred_3dcam.pdf"), dev
 
 ```
 
+For reference, the unscaled SEM curve.
 
 ```{r}
-#| fig-cap: Test SEM curve of predicted 3D-CAM in Intuit and SAGES
+#| fig-cap: Test SEM curve of predicted 3D-CAM in INTUIT and SAGES (unscaled SEM)
+#| fig-cap-location: top
+#| label: fig-test_sem_pred_3dcam1
+
+test_info %>%
+  filter(yhat>=0) %>%
+ggplot(aes(x = yhat, y = sem, color = study)) +
+  # geom_hline(yintercept = 0.31) +
+  geom_line() +
+  scale_x_continuous("Predicted 3D-CAM", breaks = seq(0, 12, 2)) +
+  scale_y_continuous("SEM", limits = c(0, 2)) +
+  geom_rug(data=combined_df, mapping=aes(x = harmonized_3dcam, color = study), inherit.aes = FALSE, alpha = .2) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
+  hrbrthemes::theme_ipsum()
+
+```
+
+
+```{r}
+#| fig-cap: Test SEM curve of predicted 3D-CAM in INTUIT and SAGES
 #| fig-cap-location: top
 #| label: fig-test_sem_pred_3dcam
 
 test_info %>%
   filter(yhat>=0) %>%
-ggplot(aes(x = yhat, y = sem, color = study)) +
-  geom_hline(yintercept = 0.31) +
+ggplot(aes(x = yhat, y = sem1, color = study)) +
+  # geom_hline(yintercept = 0.31) +
   geom_line() +
   scale_x_continuous("Predicted 3D-CAM", breaks = seq(0, 12, 2)) +
   scale_y_continuous("SEM", limits = c(0, 2)) +
   geom_rug(data=combined_df, mapping=aes(x = harmonized_3dcam, color = study), inherit.aes = FALSE, alpha = .2) +
-  scale_color_manual("Study", values = c(SAGES = "#d95f02", Intuit = "#7570b3"),
-                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "Intuit")) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
   hrbrthemes::theme_ipsum()
 
 ggsave(here::here("Figures", "Duke_harmonization_test_sem_pred_3dcam.pdf"), device = cairo_pdf)
 
 test_info %>%
   filter(yhat>=0) %>%
-ggplot(aes(x = yhat, y = sem, color = study)) +
-  geom_hline(yintercept = 0.31) +
-  geom_point(data=combined_df, mapping=aes(x = yhat, y = F_SE, color = study), alpha = .2) +
+ggplot(aes(x = yhat, y = sem1, color = study)) +
+  # geom_hline(yintercept = 0.31) +
+  geom_point(data=combined_df, mapping=aes(x = yhat, y = sem1, color = study), alpha = .2) +
   geom_line() +
   scale_x_continuous("Predicted 3D-CAM", breaks = seq(0, 12, 2), limits = c(0, 12)) +
   scale_y_continuous("SEM", limits = c(0, 2)) +
-  scale_color_manual("Study", values = c(SAGES = "#d95f02", Intuit = "#7570b3"),
-                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "Intuit")) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
   hrbrthemes::theme_ipsum()
 ggsave(here::here("Figures", "Duke_harmonization_test_sem_pred_3dcam-2.pdf"), device = cairo_pdf)
 
 combined_df %>%
-ggplot(aes(x = yhat, y = F_SE, color = study)) +
-  geom_hline(yintercept = 0.31) +
+ggplot(aes(x = yhat, y = sem1, color = study)) +
+  # geom_hline(yintercept = 0.31) +
   geom_point(alpha = .2) +
   geom_smooth(se=FALSE) +
   scale_x_continuous("Predicted 3D-CAM", breaks = seq(0, 12, 2), limits = c(0, 12)) +
   scale_y_continuous("SEM", limits = c(0, 2)) +
-  scale_color_manual("Study", values = c(SAGES = "#d95f02", Intuit = "#7570b3"),
-                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "Intuit")) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
   hrbrthemes::theme_ipsum()
 ggsave(here::here("Figures", "Duke_harmonization_test_sem_pred_3dcam-3.pdf"), device = cairo_pdf)
 
 ```
+
+```{r}
+
+
+# Finding the points on the theta scale that correspond to a 3D-CAM score of 3, and for the interval 2.5 - 3.5
+# test_info %>%
+#   filter(study == "INTUIT") %>%
+#   filter((yhat <2.55 & yhat > 2.45)| (yhat <3.05 & yhat > 2.95)| (yhat < 3.55 & yhat > 3.45))
+
+# for the marginal reliability
+combined_df %>%
+  filter(F > .54 & F < .91) %>%
+  mutate(F3 = F - .72,
+         sages = study=="SAGES") %>%
+  lm(F_SE ~ F3 + sages, data = .)
+
+
+sem_intuit <- .3877
+sem_sages <- .3877 - .1468
+
+mr_intuit <- 1 - (sem_intuit)^2
+mr_sages <- 1 - (sem_sages)^2
+
+combined_df %>%  
+ggplot(aes(x = F, y = F_SE, color = study)) +
+  geom_hline(yintercept = c(sem_intuit, sem_sages)) +
+  geom_vline(xintercept = .72) +
+  geom_point(alpha = .2) +
+  scale_x_continuous("Factor score") +
+  scale_y_continuous("SEM", limits = c(0, 1)) +
+  scale_color_manual("Study", values = c(SAGES = "#d95f02", INTUIT = "#7570b3"),
+                       labels = c(SAGES = "SAGES", INTUIT_ACTIVE = "INTUIT")) +
+  hrbrthemes::theme_ipsum()
+
+
+
+```
+
+The SEM value in SAGES at a value that corresponds to a 3D-CAM score of 3 is `r round(sem_sages, 2)`. This corresponds to a marginal reliability of `r round(mr_sages, 2)`.
+
+The SEM value in INTUIT at a value that corresponds to a 3D-CAM score of 3 is `r round(sem_intuit, 2)`. This corresponds to a marginal reliability of `r round(mr_intuit, 2)`.
 

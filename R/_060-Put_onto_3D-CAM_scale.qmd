@@ -3,24 +3,24 @@
 
 The latent factor score is on a N(0, 1) scale.  To aid interpretation, we will transform it to the original 3D-CAM severity scale.  This is the process:
 
-1. In the Intuit study, regress the 3D-CAM score on the factor score using restricted cubic splines.
+1. In the INTUIT study, regress the 3D-CAM score on the factor score using restricted cubic splines.
 2. Use the model to get predicted #D-CAM scores using the factor scores from SAGES.  Predicted values less that 0 will be rounded up to 0.
-3. The new 3D-CAM severity score will be the original 3D-CAM score in Intuit, and the predicted score in SAGES.  
+3. The new 3D-CAM severity score will be the original 3D-CAM score in INTUIT, and the predicted score in SAGES.  
 
 ```{r}
 combined_df <- readRDS(file=fs::path(r_objects_folder, "060_combined_df.rds"))
 
 ```
 
-## Factor score and 3D-CAM-S score in Intuit
+## Factor score and 3D-CAM-S score in INTUIT
 
 ```{r}
-#| fig-cap: Relationship between severity score and factor score in Intuit
+#| fig-cap: Relationship between severity score and factor score in INTUIT
 #| tbl-cap-location: top
 #| label: fig-severity-vs-facore-intuit
 
 # combined_df %>%
-#   filter(study=="Intuit") %>%
+#   filter(study=="INTUIT") %>%
 #   ggplot(aes(x = F, y = dcam_score)) +
 #     geom_jitter() +
 #     geom_smooth() +
@@ -29,7 +29,7 @@ combined_df <- readRDS(file=fs::path(r_objects_folder, "060_combined_df.rds"))
 #     hrbrthemes::theme_ipsum()
 
 combined_df %>%
-  filter(study=="Intuit") %>%
+  filter(study=="INTUIT") %>%
   select(F, dcam_score) %>%
   group_by(F, dcam_score) %>%
   count() %>%
@@ -44,14 +44,14 @@ combined_df %>%
 
 ## 3D-CAM-S score: Observed vs Predicted
 
-### Intuit
+### INTUIT
 
 ```{r}
-#| fig-cap: Relationship between observed and predicted severity scores in Intuit (n = 571)
+#| fig-cap: Relationship between observed and predicted severity scores in INTUIT (n = 571)
 #| label: fig-obs-vs-pred-intuit
 
 # combined_df %>%
-#   filter(study=="Intuit") %>%
+#   filter(study=="INTUIT") %>%
 #   ggplot(aes(x = yhat, y = dcam_score)) +
 #     geom_jitter() +
 #     geom_smooth() +
@@ -62,7 +62,7 @@ combined_df %>%
 #     coord_fixed()
     
 combined_df %>%
-  filter(study=="Intuit") %>%
+  filter(study=="INTUIT") %>%
   select(yhat, dcam_score) %>%
   group_by(yhat, dcam_score) %>%
   count() %>%
@@ -133,11 +133,11 @@ combined_df %>%
 ```
 
 ```{r}
-#| tbl-cap: Descriptive statistics of observed 3D-CAM severity score in Intuit
+#| tbl-cap: Descriptive statistics of observed 3D-CAM severity score in INTUIT
 #| label: tbl-desc-obs-severity-scores
 #| 
 combined_df %>%
-  filter(study=="Intuit") %>%
+  filter(study=="INTUIT") %>%
   select(dcam_score) %>%
   gtsummary::tbl_summary(type = c(dcam_score) ~ "continuous2",
                          statistic = gtsummary::all_continuous() ~ c(
@@ -173,7 +173,7 @@ combined_df %>%
 
 
 combined_df %>%
-  filter(study=="Intuit") %>%
+  filter(study=="INTUIT") %>%
   select(dcam_score) %>%
   ggplot(aes(x = dcam_score)) +
     geom_histogram() +
